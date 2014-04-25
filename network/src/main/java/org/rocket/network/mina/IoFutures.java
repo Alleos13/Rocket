@@ -9,8 +9,8 @@ import org.fungsi.concurrent.Promises;
 
 import java.util.Optional;
 
-public final class MinaUtils {
-    private MinaUtils() { }
+public final class IoFutures {
+    private IoFutures() { }
 
     public static Future<Unit> toFungsi(IoFuture fut) {
         Promise<Unit> p = Promises.create();

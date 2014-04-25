@@ -114,9 +114,7 @@ public class NettyService<C extends NettyClient> implements NetworkService<C>, I
 	}
 
 	@Override
-	public IMessageBus<NetworkEvent<C>, ?> getEventBus() {
-		return eventBus;
-	}
+	public IMessageBus<NetworkEvent<C>, ?> getEventBus() {return eventBus;}
 
 	@Override
 	public void handleError(PublicationError error) {
@@ -152,7 +150,7 @@ public class NettyService<C extends NettyClient> implements NetworkService<C>, I
 
 		@Override
 		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-			C client = ctx.channel().attr(ATTR).getAndRemove();
+			C client = ctx.channel().attr(ATTR).get();
 			clients.remove(client);
 
 			ctx.fireChannelInactive();
@@ -168,7 +166,7 @@ public class NettyService<C extends NettyClient> implements NetworkService<C>, I
 
 		@Override
 		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-			C client = ctx.channel().attr(ATTR).get();
+			C client = ctx.channel().attr(ATTR).getAndRemove();
 			eventBus.post(new DisconnectEvent<>(client)).now();
 		}
 

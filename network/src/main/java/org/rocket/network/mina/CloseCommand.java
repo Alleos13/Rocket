@@ -9,7 +9,7 @@ import org.rocket.network.NetworkCommand;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import static org.rocket.network.mina.MinaUtils.toFungsi;
+import static org.rocket.network.mina.IoFutures.toFungsi;
 
 public final class CloseCommand implements NetworkCommand {
     private final IoSession session;

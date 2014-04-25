@@ -25,7 +25,7 @@ public final class BroadcastCommand implements NetworkCommand {
     @Override
     public Future<Unit> async() {
         return sessions.map(s -> s.write(o))
-                .map(MinaUtils::toFungsi)
+                .map(IoFutures::toFungsi)
                 .collect(Futures.collect())
                 .toUnit()
                 ;

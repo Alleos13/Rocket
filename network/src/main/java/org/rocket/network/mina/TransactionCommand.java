@@ -41,7 +41,7 @@ public final class TransactionCommand implements NetworkCommand {
         Future<Unit> acc() {
             return messages.stream()
                     .map(session::write)
-                    .map(MinaUtils::toFungsi)
+                    .map(IoFutures::toFungsi)
                     .collect(Futures.collect())
                     .toUnit();
         }
