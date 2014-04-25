@@ -5,11 +5,11 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 public class MinaServiceSettings {
-    public final DefaultIoFilterChainBuilder filter;
-    public final SocketSessionConfig sessionConfig;
+    public final DefaultIoFilterChainBuilder filters;
+    public final SocketSessionConfig session;
 
     public MinaServiceSettings(NioSocketAcceptor server){
-        this.filter = server.getFilterChain();
-        this.sessionConfig = server.getSessionConfig();
+        this.filters = server.getFilterChain();
+        this.session = server.getSessionConfig();
     }
 }

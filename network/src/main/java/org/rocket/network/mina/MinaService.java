@@ -18,6 +18,7 @@ import org.rocket.network.NetworkService;
 import org.rocket.network.event.*;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import static com.google.common.base.Throwables.propagate;
 
 public class MinaService<C extends MinaClient> implements NetworkService<C>, IPublicationErrorHandler {
 
@@ -48,7 +51,7 @@ public class MinaService<C extends MinaClient> implements NetworkService<C>, IPu
         server.setDefaultLocalAddress(localAddr);
 
         MinaServiceSettings settings = new MinaServiceSettings(server);
-        settings.filter.addLast(Clients.class.getName(), new Clients());
+        settings.filters.addLast(Clients.class.getName(), new Clients());
         initializer.accept(settings);
         server.setHandler(new Dispatch());
     }
@@ -93,9 +96,13 @@ public class MinaService<C extends MinaClient> implements NetworkService<C>, IPu
 
     @Override
     public void start(ServiceContext ctx) {
-        logger.debug("starting...");
-        //server.bind();
-        logger.info("started");
+        try {
+            logger.debug("starting...");
+            server.bind();
+            logger.info("started");
+        }catch(IOException e){
+            propagate(e);
+        }
     }
 
     @Override
@@ -136,6 +143,7 @@ public class MinaService<C extends MinaClient> implements NetworkService<C>, IPu
 
         @Override
         public void filterClose(NextFilter nextFilter, IoSession session){
+            @SuppressWarnings("unchecked")
             C client = (C) session.getAttribute(ATTR);
             clients.remove(client);
 
@@ -146,24 +154,28 @@ public class MinaService<C extends MinaClient> implements NetworkService<C>, IPu
     class Dispatch extends IoHandlerAdapter {
         @Override
         public void sessionOpened(IoSession session) throws Exception {
+            @SuppressWarnings("unchecked")
             C client = (C) session.getAttribute(ATTR);
             eventBus.post(new ConnectEvent<>(client)).now();
         }
 
         @Override
         public void sessionClosed(IoSession session) throws Exception {
+            @SuppressWarnings("unchecked")
             C client = (C) session.removeAttribute(ATTR);
             eventBus.post(new DisconnectEvent<>(client)).now();
         }
 
         @Override
         public void messageReceived(IoSession session, Object msg) throws Exception {
+            @SuppressWarnings("unchecked")
             C client = (C) session.getAttribute(ATTR);
             eventBus.post(new ReceiveEvent<>(client, msg)).now();
         }
 
         @Override
         public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+            @SuppressWarnings("unchecked")
             C client = (C) session.getAttribute(ATTR);
             eventBus.post(new RecoverEvent<>(client, cause)).now();
         }
